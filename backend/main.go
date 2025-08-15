@@ -135,8 +135,10 @@ func envOr(key, def string) string {
 }
 
 func main() {
-	mongoURI := envOr("MONGO_URI", "mongodb://localhost:27017")
-	dbName := envOr("MONGO_DB", "formbuilder")
+	//mongoURI := envOr("MONGO_URI", "mongodb://localhost:27017")
+	//dbName := envOr("MONGO_DB", "formbuilder")
+	mongoURI := envOr("MONGODB_URI", "mongodb://localhost:27017")
+	dbName := envOr("MONGODB_DB", "formbuilder")
 	port := envOr("PORT", "8080")
 	origin := envOr("ORIGIN", "http://localhost:3000")
 
