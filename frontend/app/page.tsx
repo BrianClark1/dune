@@ -1,7 +1,8 @@
 export default function Home() {
     return (
-        <div>
-            Form Builder
-        </div>
+        <main style={{ padding: 24 }}>
+            <h1>Form Builder</h1>
+            <p><a href="/builder">Create a new form →</a></p>
+        </main>
     );
 }
