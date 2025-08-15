@@ -1,1 +1,14 @@
+# IDE & OS
 .idea/
+.DS_Store
+
+# Node/Next
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+
+# Go
+backend/.env
+
+# Archives
+*.zip
