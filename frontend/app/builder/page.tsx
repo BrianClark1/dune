@@ -28,6 +28,7 @@ const emptyForm: FormModel = { title: "Untitled Form", fields: [] };
 function FormBuilderUI() {
     const [form, setForm] = useState<FormModel>({ ...emptyForm });
     const [draftId, setDraftId] = useState<string | null>(null);
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
 
     // inputs for the field composer
     const [ftype, setFtype] = useState<FieldType>("text");
@@ -199,26 +200,52 @@ function FormBuilderUI() {
                                 >Add question</button>
                             </div>
                         </div>
-
                         {/* Existing fields */}
                         <div className="space-y-3">
                             {form.fields.length === 0 && (
-                                <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500">No questions yet. Add your first one above.</div>
+                                <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500">
+                                    No questions yet. Add your first one above.
+                                </div>
                             )}
 
                             {form.fields.map((fld, idx) => (
-                                <div key={fld.id} className="flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                                    <div className="mt-2 select-none rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-600">{idx + 1}</div>
+                                <div key={fld.id}
+                                     draggable
+                                     onDragStart={() => setDragIndex(idx)}
+                                     onDragOver={(e) => e.preventDefault()}
+                                     onDrop={(e) => {
+                                         e.preventDefault();
+                                         if (dragIndex === null || dragIndex === idx) return;
+                                         const newFields = [...form.fields];
+                                         const [moved] = newFields.splice(dragIndex, 1);
+                                         newFields.splice(idx, 0, moved);
+                                         setForm(f => ({ ...f, fields: newFields }));
+                                         setDragIndex(null);
+                                     }}
+                                     className={`flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm cursor-move ${
+                                         dragIndex === idx ? 'opacity-50' : ''
+                                     }`}>
+                                    <div className="mt-2 select-none rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-600">
+                                        {idx + 1}
+                                    </div>
                                     <div className="flex-1">
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">{prettyType(fld.type)}</span>
-                                            {fld.required && <span className="rounded-full bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">Required</span>}
+                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                        {prettyType(fld.type)}
+                    </span>
+                                            {fld.required && (
+                                                <span className="rounded-full bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">
+                            Required
+                        </span>
+                                            )}
                                         </div>
                                         <p className="mt-1 text-base font-medium">{fld.label}</p>
                                         {Array.isArray(fld.options) && fld.options.length > 0 && (
                                             <div className="mt-2 flex flex-wrap gap-2">
                                                 {fld.options.map((o) => (
-                                                    <span key={o} className="rounded-full border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-700">{o}</span>
+                                                    <span key={o} className="rounded-full border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-700">
+                                {o}
+                            </span>
                                                 ))}
                                             </div>
                                         )}
@@ -226,12 +253,16 @@ function FormBuilderUI() {
                                             <p className="mt-2 text-sm text-gray-600">Max: {fld.max}</p>
                                         )}
                                     </div>
-                                    <button onClick={() => removeField(fld.id)} className="rounded-lg border border-red-200 bg-white px-2 py-1 text-sm text-red-600 hover:bg-red-50">Delete</button>
+                                    <button
+                                        onClick={() => removeField(fld.id)}
+                                        className="rounded-lg border border-red-200 bg-white px-2 py-1 text-sm text-red-600 hover:bg-red-50">
+                                        Delete
+                                    </button>
                                 </div>
                             ))}
                         </div>
-                    </div>
 
+                    </div>
                     {/* Preview column */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
