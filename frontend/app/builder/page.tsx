@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 
 // ---------- Types ----------
@@ -37,6 +37,20 @@ function FormBuilderUI() {
     const [foptions, setFoptions] = useState<string[]>([]);
     const [foptionInput, setFoptionInput] = useState("");
     const [fratingMax, setFratingMax] = useState<number>(5);
+
+    useEffect(() => {
+        // Load first draft found
+        const drafts = Object.keys(localStorage)
+            .filter(key => key.startsWith('form_'));
+        if (drafts.length > 0) {
+            const saved = localStorage.getItem(drafts[0]);
+            if (saved) {
+                setForm(JSON.parse(saved));
+                setDraftId(drafts[0].replace('form_', ''));
+            }
+        }
+    }, []);
+
 
     const canAdd = useMemo(() => {
         if (!flabel.trim()) return false;
@@ -80,21 +94,38 @@ function FormBuilderUI() {
         resetComposer();
     };
 
-    const saveDraft = async () => {
+    // const saveDraft = async () => {
+    //     try {
+    //         const res = await fetch("/api/forms", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify(form),
+    //         });
+    //         if (!res.ok) throw new Error(await res.text());
+    //         const data = await res.json();
+    //         setDraftId(data.id || data._id || null);
+    //     } catch (e) {
+    //         console.error(e);
+    //         alert(`Save failed: ${e}`);
+    //     }
+    // };
+
+    const saveDraft = () => {
         try {
-            const res = await fetch("/api/forms", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
-            });
-            if (!res.ok) throw new Error(await res.text());
-            const data = await res.json();
-            setDraftId(data.id || data._id || null);
+            const id = draftId || `draft_${newId()}`;
+            localStorage.setItem(`form_${id}`, JSON.stringify(form));
+            setDraftId(id);
+            alert('Draft saved successfully!');
         } catch (e) {
             console.error(e);
             alert(`Save failed: ${e}`);
         }
     };
+
+
+
+
+
 
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900">
