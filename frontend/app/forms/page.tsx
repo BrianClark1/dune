@@ -25,6 +25,7 @@ export default function FormsPage() {
             setForms(data);
         } catch (error) {
             console.error('Error fetching forms:', error);
+            alert('Failed to load forms');
         } finally {
             setLoading(false);
         }
@@ -63,9 +64,9 @@ export default function FormsPage() {
                         {forms.map((form) => (
                             <div
                                 key={form.id}
-                                className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all relative"
+                                className="relative group bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 hover:shadow-sm transition-all"
                             >
-                                <div className="absolute top-4 right-4">
+                                <div className="absolute top-4 right-4 flex gap-1">
                                     <a
                                         href={`/builder/edit/${form.id}`}
                                         aria-label={`Edit ${form.title}`}
@@ -85,24 +86,47 @@ export default function FormsPage() {
                                                 strokeLinejoin="round"
                                                 d="M16.862 4.487l1.688-1.688a1.875 1.875 0 112.652 2.652L7.5 19.154 3 21l1.846-4.5L16.862 4.487z"
                                             />
-                                            <path
-                                                strokeWidth={2}
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M19.5 7.125L16.862 4.487"
-                                            />
                                         </svg>
                                         <span className="sr-only">Edit</span>
                                     </a>
+                                    <Link
+                                        href={`/dashboard/${form.id}`}
+                                        aria-label={`View analytics for ${form.title}`}
+                                        title="Analytics"
+                                        className="inline-flex items-center justify-center p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                                    >
+                                        <svg
+                                            className="w-5 h-5"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            {/* simple bar chart icon */}
+                                            <path
+                                                d="M3 20h18 M7 16v-6 M12 16V8 M17 16v-3"
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                        </svg>
+                                        <span className="sr-only">Analytics</span>
+                                    </Link>
+
                                 </div>
 
-                                <Link href={`/forms/${form.id}`} className="block">
-                                    <h2 className="text-xl font-semibold text-gray-900 mb-2">{form.title}</h2>
-                                    <p className="text-sm text-gray-500">{form.fields.length} questions</p>
-                                    <p className="text-xs text-gray-400 mt-2">
-                                        Created {new Date(form.createdAt).toLocaleDateString()}
+                                <div className="pr-8">
+                                    <h3 className="font-semibold text-gray-900 mb-2">{form.title}</h3>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        {form.fields.length} question{form.fields.length === 1 ? '' : 's'}
                                     </p>
-                                </Link>
+                                    <a
+                                        href={`/forms/${form.id}`}
+                                        className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500"
+                                    >
+                                        View form →
+                                    </a>
+                                </div>
                             </div>
                         ))}
                     </div>
