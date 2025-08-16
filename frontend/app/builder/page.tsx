@@ -47,19 +47,28 @@ function FormBuilderUI({ initialForm, onSave, isEditMode = false }: FormBuilderP
     const [foptionInput, setFoptionInput] = useState("");
     const [fratingMax, setFratingMax] = useState<number>(5);
 
+
+    // Only load from localStorage if we're not in edit mode
     useEffect(() => {
-        // Load first draft found
-        const drafts = Object.keys(localStorage)
-            .filter(key => key.startsWith('form_'));
-        if (drafts.length > 0) {
-            const saved = localStorage.getItem(drafts[0]);
-            if (saved) {
-                setForm(JSON.parse(saved));
-                setDraftId(drafts[0].replace('form_', ''));
+        if (!isEditMode) {
+            const drafts = Object.keys(localStorage)
+                .filter(key => key.startsWith('form_'));
+            if (drafts.length > 0) {
+                const saved = localStorage.getItem(drafts[0]);
+                if (saved) {
+                    setForm(JSON.parse(saved));
+                    setDraftId(drafts[0].replace('form_', ''));
+                }
             }
         }
-    }, []);
+    }, [isEditMode]);
 
+    // Update form when initialForm changes
+    useEffect(() => {
+        if (initialForm) {
+            setForm(initialForm);
+        }
+    }, [initialForm]);
 
     const canAdd = useMemo(() => {
         if (!flabel.trim()) return false;
@@ -169,7 +178,7 @@ function FormBuilderUI({ initialForm, onSave, isEditMode = false }: FormBuilderP
         try {
             if (onSave) {
                 await onSave(form);
-                alert('Changes saved successfully!');
+                // alert('Changes saved successfully!');
             }
         } catch (e) {
             console.error(e);
