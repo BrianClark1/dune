@@ -148,6 +148,7 @@ function FormBuilderUI() {
         <div className="min-h-screen bg-gray-50 text-gray-900">
             <div className="mx-auto max-w-6xl p-6">
                 {/* Header */}
+                // In the FormBuilderUI component, update the header div:
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                         <input
@@ -161,6 +162,12 @@ function FormBuilderUI() {
                         )}
                     </div>
                     <div className="flex gap-2">
+                        <a
+                            href="/"
+                            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100"
+                        >
+                            Back to Home
+                        </a>
                         <button onClick={saveDraft}
                                 className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100">
                             Save draft
@@ -175,7 +182,6 @@ function FormBuilderUI() {
                         </button>
                     </div>
                 </div>
-
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Builder column (2/3) */}
                     <div className="lg:col-span-2 space-y-6">
