@@ -122,6 +122,23 @@ function FormBuilderUI() {
         }
     };
 
+    const publishForm = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...form, published: true }),
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+            setDraftId(data.id);
+            alert('Form published successfully!');
+        } catch (e) {
+            console.error(e);
+            alert(`Publish failed: ${e}`);
+        }
+    };
+
 
 
 
@@ -144,9 +161,18 @@ function FormBuilderUI() {
                         )}
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={saveDraft} className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100">Save draft</button>
-                        <button onClick={clearAll} className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50">Clear</button>
-                        <button onClick={saveDraft} className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">Publish</button>
+                        <button onClick={saveDraft}
+                                className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100">
+                            Save draft
+                        </button>
+                        <button onClick={clearAll}
+                                className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50">
+                            Clear
+                        </button>
+                        <button onClick={publishForm}
+                                className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">
+                            Publish
+                        </button>
                     </div>
                 </div>
 
@@ -155,10 +181,11 @@ function FormBuilderUI() {
                     <div className="lg:col-span-2 space-y-6">
                         {/* Field composer */}
                         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                            <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">Add a question</p>
+                            <p className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">Add a
+                                question</p>
 
                             <div className="flex flex-col gap-3 sm:flex-row">
-                                <select value={ftype} onChange={(e) => setFtype(e.target.value as FieldType)}
+                            <select value={ftype} onChange={(e) => setFtype(e.target.value as FieldType)}
                                         className="h-10 w-full rounded-xl border border-gray-300 bg-white px-3 focus:outline-none focus:ring-0 sm:w-48">
                                     <option value="text">Text</option>
                                     <option value="multiple_choice">Multiple choice</option>

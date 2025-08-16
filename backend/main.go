@@ -31,6 +31,7 @@ import (
 
 	fiber "github.com/gofiber/fiber/v2"
 	cors "github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -135,17 +136,41 @@ func envOr(key, def string) string {
 }
 
 func main() {
-	//mongoURI := envOr("MONGO_URI", "mongodb://localhost:27017")
-	//dbName := envOr("MONGO_DB", "formbuilder")
+	log.Printf("HELOOOOOOOOOOO")
+	if err := godotenv.Load(); err != nil {
+		log.Printf("Warning: .env file not found")
+	}
+
+	// Get MongoDB connection details from environment
 	mongoURI := envOr("MONGODB_URI", "mongodb://localhost:27017")
-	dbName := envOr("MONGODB_DB", "formbuilder")
+	dbName := envOr("MONGODB_DB", "dune")
 	port := envOr("PORT", "8080")
 	origin := envOr("ORIGIN", "http://localhost:3000")
 
+	// Set up MongoDB connection
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	log.Printf("Connecting to MongoDB at %s (database: %s)", mongoURI, dbName)
+
 	var err error
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
+	if err != nil {
+		log.Fatalf("mongo connect: %v", err)
+	}
+
+	// Test the connection
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatalf("mongo ping: %v", err)
+	}
+
+	log.Printf("Successfully connected to MongoDB")
+
+	db = client.Database(dbName)
+	forms = db.Collection("forms")
+	responses = db.Collection("responses")
+
 	client, err = mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatalf("mongo connect: %v", err)
