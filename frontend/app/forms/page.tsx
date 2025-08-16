@@ -67,11 +67,35 @@ export default function FormsPage() {
                                 <div className="absolute top-4 right-4">
                                     <a
                                         href={`/builder/edit/${form.id}`}
-                                        className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                                        aria-label={`Edit ${form.title}`}
+                                        title="Edit"
+                                        className="inline-flex items-center justify-center p-2 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                                     >
-                                        Edit
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            className="w-5 h-5"
+                                            aria-hidden="true"
+                                        >
+                                            {/* Heroicons-style pencil */}
+                                            <path
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M16.862 4.487l1.688-1.688a1.875 1.875 0 112.652 2.652L7.5 19.154 3 21l1.846-4.5L16.862 4.487z"
+                                            />
+                                            <path
+                                                strokeWidth={2}
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M19.5 7.125L16.862 4.487"
+                                            />
+                                        </svg>
+                                        <span className="sr-only">Edit</span>
                                     </a>
                                 </div>
+
                                 <a href={`/forms/${form.id}`}>
                                     <h2 className="text-xl font-semibold text-gray-900 mb-2">{form.title}</h2>
                                     <p className="text-sm text-gray-600 mb-4">
