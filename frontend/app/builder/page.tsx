@@ -112,22 +112,6 @@ function FormBuilderUI({ initialForm, onSave, isEditMode = false }: FormBuilderP
         resetComposer();
     };
 
-    // const saveDraft = async () => {
-    //     try {
-    //         const res = await fetch("/api/forms", {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify(form),
-    //         });
-    //         if (!res.ok) throw new Error(await res.text());
-    //         const data = await res.json();
-    //         setDraftId(data.id || data._id || null);
-    //     } catch (e) {
-    //         console.error(e);
-    //         alert(`Save failed: ${e}`);
-    //     }
-    // };
-
     const saveDraft = () => {
         try {
             const id = draftId || `draft_${newId()}`;
@@ -139,23 +123,6 @@ function FormBuilderUI({ initialForm, onSave, isEditMode = false }: FormBuilderP
             alert(`Save failed: ${e}`);
         }
     };
-
-    // const publishForm = async () => {
-    //     try {
-    //         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`, {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify({ ...form, published: true }),
-    //         });
-    //         if (!res.ok) throw new Error(await res.text());
-    //         const data = await res.json();
-    //         setDraftId(data.id);
-    //         alert('Form published successfully!');
-    //     } catch (e) {
-    //         console.error(e);
-    //         alert(`Publish failed: ${e}`);
-    //     }
-    // };
 
     const publishForm = async () => {
         try {
@@ -407,13 +374,6 @@ function prettyType(t: FieldType) {
     }
 }
 
-
-// export default function Page() {
-//     return <FormBuilderUI/>;
-// }
-
-
-// Correct - update in frontend/app/builder/page.tsx
 export default function Page({ initialForm, onSave, isEditMode }: FormBuilderProps) {
     return (
         <FormBuilderUI
