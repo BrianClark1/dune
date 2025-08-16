@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface Form {
     id: string;
@@ -78,7 +79,6 @@ export default function FormsPage() {
                                             className="w-5 h-5"
                                             aria-hidden="true"
                                         >
-                                            {/* Heroicons-style pencil */}
                                             <path
                                                 strokeWidth={2}
                                                 strokeLinecap="round"
@@ -96,15 +96,13 @@ export default function FormsPage() {
                                     </a>
                                 </div>
 
-                                <a href={`/forms/${form.id}`}>
+                                <Link href={`/forms/${form.id}`} className="block">
                                     <h2 className="text-xl font-semibold text-gray-900 mb-2">{form.title}</h2>
-                                    <p className="text-sm text-gray-600 mb-4">
-                                        {form.fields.length} question{form.fields.length === 1 ? '' : 's'}
-                                    </p>
-                                    <time className="text-xs text-gray-500">
+                                    <p className="text-sm text-gray-500">{form.fields.length} questions</p>
+                                    <p className="text-xs text-gray-400 mt-2">
                                         Created {new Date(form.createdAt).toLocaleDateString()}
-                                    </time>
-                                </a>
+                                    </p>
+                                </Link>
                             </div>
                         ))}
                     </div>
