@@ -24,8 +24,17 @@ const newId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto
 
 const emptyForm: FormModel = { title: "Untitled Form", fields: [] };
 
+// Add to the existing props
+interface FormBuilderProps {
+    initialForm?: FormModel;
+    onSave?: (form: FormModel) => Promise<void>;
+    isEditMode?: boolean;
+}
+
 // ---------- UI ----------
-function FormBuilderUI() {
+function FormBuilderUI({ initialForm, onSave, isEditMode = false }: FormBuilderProps) {
+    // Rest of the component code...
+    console.log('FormBuilderUI received props:', { initialForm, onSave, isEditMode });
     const [form, setForm] = useState<FormModel>({ ...emptyForm });
     const [draftId, setDraftId] = useState<string | null>(null);
     const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -122,6 +131,23 @@ function FormBuilderUI() {
         }
     };
 
+    // const publishForm = async () => {
+    //     try {
+    //         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`, {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({ ...form, published: true }),
+    //         });
+    //         if (!res.ok) throw new Error(await res.text());
+    //         const data = await res.json();
+    //         setDraftId(data.id);
+    //         alert('Form published successfully!');
+    //     } catch (e) {
+    //         console.error(e);
+    //         alert(`Publish failed: ${e}`);
+    //     }
+    // };
+
     const publishForm = async () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`, {
@@ -135,12 +161,21 @@ function FormBuilderUI() {
             alert('Form published successfully!');
         } catch (e) {
             console.error(e);
-            alert(`Publish failed: ${e}`);
+            alert('Publish failed: ${e}');
         }
     };
 
-
-
+    const saveChanges = async () => {
+        try {
+            if (onSave) {
+                await onSave(form);
+                alert('Changes saved successfully!');
+            }
+        } catch (e) {
+            console.error(e);
+            alert(`Save failed: ${e}`);
+        }
+    };
 
 
 
@@ -148,40 +183,45 @@ function FormBuilderUI() {
         <div className="min-h-screen bg-gray-50 text-gray-900">
             <div className="mx-auto max-w-6xl p-6">
                 {/* Header */}
-                // In the FormBuilderUI component, update the header div:
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                         <input
                             value={form.title}
-                            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                            onChange={(e) => setForm((f) => ({...f, title: e.target.value}))}
                             className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-lg font-semibold shadow-sm outline-none focus:border-gray-400"
                             placeholder="Form title"
                         />
                         {draftId && (
-                            <p className="mt-1 text-sm text-gray-500">Saved as ID: <span className="font-mono">{draftId}</span></p>
+                            <p className="mt-1 text-sm text-gray-500">Saved as ID: <span
+                                className="font-mono">{draftId}</span></p>
                         )}
                     </div>
                     <div className="flex gap-2">
-                        <a
-                            href="/"
-                            className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100"
-                        >
-                            Back to Home
-                        </a>
-                        <button onClick={saveDraft}
-                                className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100">
-                            Save draft
-                        </button>
-                        <button onClick={clearAll}
-                                className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50">
-                            Clear
-                        </button>
-                        <button onClick={publishForm}
-                                className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">
-                            Publish
-                        </button>
+                        {!isEditMode && (
+                            <>
+                                <button onClick={saveDraft}
+                                        className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-100">
+                                    Save draft
+                                </button>
+                                <button onClick={clearAll}
+                                        className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50">
+                                    Clear
+                                </button>
+                                <button onClick={publishForm}
+                                        className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">
+                                    Publish
+                                </button>
+                            </>
+                        )}
+                        {isEditMode && (
+                            <button onClick={saveChanges}
+                                    className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black">
+                                Save Changes
+                            </button>
+                        )}
                     </div>
                 </div>
+
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Builder column (2/3) */}
                     <div className="lg:col-span-2 space-y-6">
@@ -191,7 +231,7 @@ function FormBuilderUI() {
                                 question</p>
 
                             <div className="flex flex-col gap-3 sm:flex-row">
-                            <select value={ftype} onChange={(e) => setFtype(e.target.value as FieldType)}
+                                <select value={ftype} onChange={(e) => setFtype(e.target.value as FieldType)}
                                         className="h-10 w-full rounded-xl border border-gray-300 bg-white px-3 focus:outline-none focus:ring-0 sm:w-48">
                                     <option value="text">Text</option>
                                     <option value="multiple_choice">Multiple choice</option>
@@ -359,6 +399,18 @@ function prettyType(t: FieldType) {
 }
 
 
-export default function Page() {
-    return <FormBuilderUI/>;
+// export default function Page() {
+//     return <FormBuilderUI/>;
+// }
+
+
+// Correct - update in frontend/app/builder/page.tsx
+export default function Page({ initialForm, onSave, isEditMode }: FormBuilderProps) {
+    return (
+        <FormBuilderUI
+            initialForm={initialForm}
+            onSave={onSave}
+            isEditMode={isEditMode}
+        />
+    );
 }

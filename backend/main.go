@@ -188,6 +188,8 @@ func main() {
 
 	api := app.Group("/api")
 
+	api.Get("/forms", getForms)
+
 	api.Post("/forms", createForm)
 	api.Get("/forms/:id", getForm)
 	api.Put("/forms/:id", updateForm)
@@ -237,6 +239,20 @@ func createForm(c *fiber.Ctx) error {
 	}
 	in.ID = res.InsertedID.(primitive.ObjectID)
 	return c.Status(fiber.StatusCreated).JSON(in)
+}
+
+func getForms(c *fiber.Ctx) error {
+	var results []Form
+	cursor, err := forms.Find(c.Context(), bson.M{})
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	defer cursor.Close(c.Context())
+
+	if err := cursor.All(c.Context(), &results); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(results)
 }
 
 func getForm(c *fiber.Ctx) error {
