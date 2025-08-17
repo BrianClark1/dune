@@ -1,28 +1,11 @@
 package main
 
-//import (
-//	"context"
-//	"encoding/json"
-//	"fmt"
-//	"log"
-//	"os"
-//	"os/signal"
-//	"sync"
-//	"syscall"
-//	"time"
-//
-//	"github.com/gofiber/fiber/v2/middleware/cors"
-//	"go.mongodb.org/mongo-driver/bson"
-//	"go.mongodb.org/mongo-driver/bson/primitive"
-//	"go.mongodb.org/mongo-driver/mongo"
-//	"go.mongodb.org/mongo-driver/mongo/options"
-//)
-
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
 	"sync"
@@ -199,6 +182,8 @@ func main() {
 	api.Get("/forms/:id/analytics", getAnalytics)
 	api.Get("/forms/:id/analytics/stream", analyticsStream)
 
+	api.Post("/forms/:id/test", testSubmit)
+
 	app.Get("/healthz", func(c *fiber.Ctx) error { return c.SendString("ok") })
 
 	go func() {
@@ -213,6 +198,59 @@ func main() {
 	<-sig
 	_ = app.Shutdown()
 	_ = client.Disconnect(context.Background())
+}
+
+func testSubmit(c *fiber.Ctx) error {
+	formId, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return err
+	}
+
+	// Generate random response
+	response := Response{
+		ID:        primitive.NewObjectID(),
+		FormID:    formId,
+		CreatedAt: time.Now(),
+		Answers:   make(map[string]interface{}),
+	}
+
+	// Get form to know the fields
+	var form Form
+	if err := forms.FindOne(c.Context(), bson.M{"_id": formId}).Decode(&form); err != nil {
+		return err
+	}
+
+	// Generate random answers
+	for _, field := range form.Fields {
+		switch field.Type {
+		case "rating":
+			response.Answers[field.ID] = rand.Intn(field.Max) + 1
+		case "multiple_choice":
+			response.Answers[field.ID] = field.Options[rand.Intn(len(field.Options))]
+		case "checkbox":
+			selected := make([]string, 0)
+			for _, opt := range field.Options {
+				if rand.Float32() < 0.5 {
+					selected = append(selected, opt)
+				}
+			}
+			response.Answers[field.ID] = selected
+		case "text":
+			texts := []string{"Great!", "Could be better", "Awesome", "Needs improvement", "Just okay"}
+			response.Answers[field.ID] = texts[rand.Intn(len(texts))]
+		}
+	}
+
+	// Save response
+	_, err = responses.InsertOne(c.Context(), response)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"message":  "Test response submitted",
+		"response": response,
+	})
 }
 
 func createForm(c *fiber.Ctx) error {

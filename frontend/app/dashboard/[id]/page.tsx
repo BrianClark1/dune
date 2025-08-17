@@ -85,10 +85,28 @@ export default function DashboardPage() {
 
     return (
         <Shell>
-            <header className="mb-8 flex items-end justify-between">
+            <header className="mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">{form.title} — Analytics</h1>
-                    <p className="text-gray-500 text-sm">Live as of {new Date(analytics.at).toLocaleTimeString()}</p>
+                    <div className="flex items-center gap-4">
+                        <p className="text-gray-500 text-sm">
+                            Live as of {new Date(analytics.at).toLocaleTimeString()}
+                        </p>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    await fetch(`${BASE}/api/forms/${formId}/test`, {
+                                        method: 'POST'
+                                    });
+                                } catch (err) {
+                                    console.error('Test submit error:', err);
+                                }
+                            }}
+                            className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        >
+                            Submit Test Response
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -98,12 +116,12 @@ export default function DashboardPage() {
                     if (!data) return null;
                     switch (field.type) {
                         case "rating":
-                            return <RatingPanel key={field.id} field={field} data={data} />;
+                            return <RatingPanel key={field.id} field={field} data={data}/>;
                         case "multiple_choice":
                         case "checkbox":
-                            return <ChoicePanel key={field.id} field={field} data={data} />;
+                            return <ChoicePanel key={field.id} field={field} data={data}/>;
                         case "text":
-                            return <TextPanel key={field.id} field={field} data={data as any} />;
+                            return <TextPanel key={field.id} field={field} data={data as any}/>;
                         default:
                             return null;
                     }
@@ -114,20 +132,23 @@ export default function DashboardPage() {
 }
 
 /* ---------- UI bits ---------- */
-function Shell({ children }: { children: React.ReactNode }) {
-    return <main className="min-h-screen p-8"><div className="max-w-6xl mx-auto">{children}</div></main>;
+function Shell({children}: { children: React.ReactNode }) {
+    return <main className="min-h-screen p-8">
+        <div className="max-w-6xl mx-auto">{children}</div>
+    </main>;
 }
-function Empty({ children }: { children: React.ReactNode }) {
+
+function Empty({children}: { children: React.ReactNode }) {
     return <div className="grid place-items-center h-[60vh] text-gray-600">{children}</div>;
 }
 
 /* ---------- Panels ---------- */
-function RatingPanel({ field, data }: { field: Field; data: Record<string, number> }) {
+function RatingPanel({field, data}: { field: Field; data: Record<string, number> }) {
     const avg = data.avg ?? 0;
     const dist = useMemo(
         () => Object.entries(data)
             .filter(([k]) => k.startsWith("dist_"))
-            .map(([k, v]) => ({ rating: Number(k.slice(5)), count: Number(v) }))
+            .map(([k, v]) => ({rating: Number(k.slice(5)), count: Number(v)}))
             .sort((a, b) => a.rating - b.rating),
         [data]
     );
