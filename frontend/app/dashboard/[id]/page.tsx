@@ -95,11 +95,69 @@ export default function DashboardPage() {
                         <button
                             onClick={async () => {
                                 try {
-                                    await fetch(`${BASE}/api/forms/${formId}/test`, {
-                                        method: 'POST'
+                                    if (!form) return;
+
+                                    // Build a test response matching the form schema
+                                    const body: Record<string, any> = {};
+
+                                    for (const fld of form.fields) {
+                                        switch (fld.type) {
+                                            case "text":
+                                                // Generate random text like "sample-x7y2z"
+                                                body[fld.id] = `sample-${Math.random().toString(36).slice(2, 7)}`;
+                                                break;
+
+                                            case "multiple_choice":
+                                                // Pick one random option
+                                                if (fld.options?.length) {
+                                                    body[fld.id] = fld.options[Math.floor(Math.random() * fld.options.length)];
+                                                }
+                                                break;
+
+                                            case "checkbox":
+                                                // Pick 1-3 random options
+                                                if (fld.options?.length) {
+                                                    const shuffled = [...fld.options].sort(() => Math.random() - 0.5);
+                                                    const count = Math.floor(Math.random() * 3) + 1;
+                                                    body[fld.id] = shuffled.slice(0, Math.min(count, fld.options.length));
+                                                }
+                                                break;
+
+                                            case "rating":
+                                                // Generate rating between 1 and max
+                                                const max = fld.max || 5;
+                                                body[fld.id] = Math.floor(Math.random() * max) + 1;
+                                                break;
+                                        }
+                                    }
+
+                                    const res = await fetch(`${BASE}/api/forms/${formId}/responses`, {
+                                        method: "POST",
+                                        headers: {"Content-Type": "application/json"},
+                                        body: JSON.stringify(body),
                                     });
+
+                                    if (!res.ok) {
+                                        throw new Error(await res.text());
+                                    }
+
+                                    // The SSE connection will automatically update the UI
+                                    // Optional fallback in case SSE fails
+                                    setTimeout(async () => {
+                                        try {
+                                            const res = await fetch(`${BASE}/api/forms/${formId}/analytics`);
+                                            if (res.ok) {
+                                                const snap = await res.json();
+                                                setAnalytics(snap);
+                                            }
+                                        } catch (err) {
+                                            console.error('Analytics refresh failed:', err);
+                                        }
+                                    }, 1000);
+
                                 } catch (err) {
                                     console.error('Test submit error:', err);
+                                    alert('Failed to submit test response');
                                 }
                             }}
                             className="px-3 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -157,15 +215,15 @@ function RatingPanel({field, data}: { field: Field; data: Record<string, number>
     return (
         <Card title={field.label} subtitle={`Avg ${avg.toFixed(1)} / ${field.max ?? 5}`}>
             <div className="space-y-2">
-                {dist.map(({ rating, count }) => (
-                    <BarRow key={rating} label={`${rating}`} value={count} max={maxCount} />
+                {dist.map(({rating, count}) => (
+                    <BarRow key={rating} label={`${rating}`} value={count} max={maxCount}/>
                 ))}
             </div>
         </Card>
     );
 }
 
-function ChoicePanel({ field, data }: { field: Field; data: Record<string, number> }) {
+function ChoicePanel({field, data}: { field: Field; data: Record<string, number> }) {
     const opts = field.options ?? [];
     const counts = opts.map(o => data[o] ?? 0);
     const total = counts.reduce((a, b) => a + b, 0);
