@@ -10,26 +10,41 @@ interface Form {
 }
 
 export default function FormsPage() {
+    console.log('FormsPage component rendered');
     const [forms, setForms] = useState<Form[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        console.log('FormsPage useEffect triggered');
         fetchForms();
     }, []);
 
     const fetchForms = async () => {
+        console.log('Fetching forms...');
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`);
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/api/forms`;
+            console.log('Fetching from URL:', url);
+
+            const res = await fetch(url);
+            console.log('Fetch response status:', res.status);
+
             if (!res.ok) throw new Error('Failed to fetch forms');
             const data = await res.json();
-            setForms(data);
+            console.log('Fetched data:', data);
+
+            setForms(data || []);
+            console.log('Forms state updated');
         } catch (error) {
-            console.error('Error fetching forms:', error);
-            alert('Failed to load forms');
+            console.error('Error in fetchForms:', error);
+            setForms([]);
         } finally {
             setLoading(false);
+            console.log('Loading state set to false');
         }
     };
+
+    console.log('Current forms state:', forms);
+    console.log('Current loading state:', loading);
 
     if (loading) {
         return (

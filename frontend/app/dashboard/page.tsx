@@ -11,6 +11,7 @@ interface Form {
 export default function DashboardsPage() {
     const [forms, setForms] = useState<Form[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchForms();
@@ -18,13 +19,14 @@ export default function DashboardsPage() {
 
     const fetchForms = async () => {
         try {
+            setLoading(true);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/forms`);
             if (!res.ok) throw new Error('Failed to fetch forms');
             const data = await res.json();
-            setForms(data);
+            setForms(data || []);
         } catch (error) {
             console.error('Error fetching forms:', error);
-            alert('Failed to load forms');
+            setError(error instanceof Error ? error.message : 'Failed to load forms');
         } finally {
             setLoading(false);
         }
