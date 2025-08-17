@@ -136,7 +136,6 @@ func envOr(key, def string) string {
 }
 
 func main() {
-	log.Printf("HELOOOOOOOOOOO")
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found")
 	}
@@ -189,6 +188,7 @@ func main() {
 	api := app.Group("/api")
 
 	api.Get("/forms", getForms)
+	api.Get("/seed", seedData)
 
 	api.Post("/forms", createForm)
 	api.Get("/forms/:id", getForm)
