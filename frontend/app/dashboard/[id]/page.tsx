@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
+
 
 type FieldType = "text" | "multiple_choice" | "checkbox" | "rating";
 type Field = { id: string; type: FieldType; label: string; required: boolean; options?: string[]; max?: number };
@@ -92,6 +94,13 @@ export default function DashboardPage() {
                         <p className="text-gray-500 text-sm">
                             Live as of {new Date(analytics.at).toLocaleTimeString()}
                         </p>
+                        {/* Back to dashboards */}
+                        <Link
+                            href="/dashboard"  // change to "/dashboards" if your route uses the plural
+                            className="px-3 py-1 text-sm rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                        >
+                            ← Back to Dashboards
+                        </Link>
                         <button
                             onClick={async () => {
                                 try {
