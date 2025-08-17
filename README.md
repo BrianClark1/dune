@@ -1,52 +1,67 @@
-# dune
-dune interview 
+# Form Builder
 
+A full-stack form builder application with real-time analytics built using Next.js, Go (Fiber), and MongoDB.
 
-want to run it next? here’s the quickest path (no Docker):
+## Features
 
-One command (if you grabbed the no-Docker zip)
+- Create and manage forms with multiple question types
+- Drag-and-drop form builder interface
+- Real-time analytics with SSE (Server-Sent Events)
+- Support for text, multiple choice, checkbox, and rating questions
+- Form response collection and visualization
 
-From the project root:
+## Setup
 
-./run_local.sh
+### Prerequisites
 
+- Node.js 18+
+- Go 1.19+
+- MongoDB (local or Atlas)
 
-That starts the Go API (8080) and Next.js (3000).
+### Frontend Setup
 
-Manual start
-
-Terminal tab 1:
-
-cd backend
-cp .env.example .env
-go mod download
-go run main.go
-# health check: http://localhost:8080/healthz
-
-
-Terminal tab 2:
-
+```bash
 cd frontend
-cp .env.example .env.local
 npm install
-npm run dev
-# app: http://localhost:3000
+cp .env.example .env.local
+# Edit .env.local and set NEXT_PUBLIC_API_URL
+npm run dev`
 
-(Optional) tidy .gitignore
+```
+### Backend
+```bash
+cd backend
+# .env (create this file)
+# MONGO_URI: Atlas or local, MONGO_DB: database name
+cat > .env << 'EOF'
+MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=dune
+MONGO_DB=dune
+PORT=8080
+ORIGIN=http://localhost:3000
+EOF
 
-If you’re committing this repo, add:
+go mod tidy
+go run .
+# -> Listening on :8080
+```
 
-# IDE & OS
-.idea/
-.DS_Store
 
-# Node/Next
-frontend/node_modules/
-frontend/.next/
-frontend/.env.local
+### Challenges
+- Setting up the local development environment and IDE configuration required significant initial effort
+- Future improvements could include:
+   - Implementing Redux for state management
+   - Restructuring files for better organization and maintainability
 
-# Go
-backend/.env
+### Testing
+There are two ways to test form analytics:
 
-# Archives
-*.zip
+1. Manual Testing
+   - Create a form
+   - Submit responses through the form interface
+   - Watch the analytics dashboard update in real-time
+
+2. Automated Testing
+   - Create a form
+   - Navigate to the dashboard
+   - Use the "Test Response" button to generate random submissions
+   - Observe automatic dashboard updates
